@@ -1,0 +1,117 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<style>
+    .drag-handle {
+        display: grid;
+        grid-template-columns: repeat(2, 4px);
+        grid-auto-rows: 4px;
+        gap: 2px;
+        width: 12px;
+        height: auto;
+        cursor: grab;
+        margin: auto;
+        box-sizing: content-box;
+        font-size: 0; /* prevent font scaling side effects */
+        line-height: 0;
+    }
+
+        .drag-handle .dot {
+            width: 4px;
+            height: 4px;
+            background-color: #800047;
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+</style>
+
+<h1>Blazor Puzzle #87</h1>
+
+<p>This is a .NET 9 Blazor Web App with Global Interactivity</p>
+<p>We are trying to implement drag and drop within a list of Blazor Puzzle Episodes</p>
+<p>It looks like it should work. We get no errors. Dragging does indeed start when you grab a drag handle, 
+    but it does not allow you to drop.</p>
+<p>How can we make this work?</p>
+
+<table>
+
+    @foreach (var episode in Episodes)
+    {
+        var index = Episodes.IndexOf(episode);
+        <tr 
+            ondragover="event.preventDefault()"
+            @ondrop="@(() => Drop(index))"
+            style="height: 32px; vertical-align: middle;">
+
+            <!-- Drag Handle -->
+            <td style="padding: 0 4px;">
+                <div class="drag-handle"
+                     draggable="true"
+                     @ondragstart="@(() => DragStart(index))">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </td>
+
+            <!-- Label -->
+            <td style="padding: 0 4px; white-space: nowrap; color: gray;">
+                @episode.ToString();
+            </td>
+        </tr>
+
+    }
+)
+</table>
+
+
+@code 
+{
+
+    List<Episode> Episodes { get; set; } = new();
+
+    private int draggedIndex = -1;
+
+    private void DragStart(int index)
+    {
+        draggedIndex = index;
+    }
+
+    private void Drop(int targetIndex)
+    {
+        if (draggedIndex == -1 || draggedIndex == targetIndex)
+            return;
+
+        var item = Episodes[draggedIndex];
+        Episodes.RemoveAt(draggedIndex);
+
+        if (draggedIndex < targetIndex)
+            targetIndex--;
+
+        Episodes.Insert(targetIndex, item);
+
+        draggedIndex = -1;
+        StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        // This is a placeholder for any initialization logic you might want to add.
+        // For example, you could load data or set up services here.
+
+        var path = $"{Environment.CurrentDirectory}\\episodes.json";
+        if (File.Exists(path))
+        {
+            var json = File.ReadAllText(path);
+            Episodes = System.Text.Json.JsonSerializer.Deserialize<List<Episode>>(json) ?? new List<Episode>();
+        }
+    }
+
+}
+
+
