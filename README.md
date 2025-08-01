@@ -2,7 +2,7 @@
 
 Carl and Jeff want to know how to make drag and drop work in a Blazor app
 
-YouTube Video: https://youtu.be/
+YouTube Video: https://youtu.be/HSimyoQaets
 
 Blazor Puzzle Home Page: https://blazorpuzzle.com
 
